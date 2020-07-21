@@ -1,0 +1,15 @@
+language: python
+python:
+  - "3.5"
+  - "3.6"      # current default Python on Travis CI
+  - "3.7"
+  - "3.8"
+# command to install dependencies
+install:
+  - pip install poetry
+  - poetry install
+# command to run tests
+script:
+  - pytest --doctest-modules -v --cov feature_graph --cov-report term-missing
+after_success:
+  - coveralls

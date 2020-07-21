@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "feature_graph"
+version = "0.1.0"
+description = ""
+authors = ["Murray Vanwyk"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+graphviz = "^0.14.1"
+loguru = "^0.5.1"
+google-cloud-bigquery = "^1.25.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+jupyterlab = "^2.2.0"
+flake8 = "^3.8.3"
+python-coveralls = "^2.9.3"
+pytest-cov = "^2.10.0"
+pre-commit = "^2.6.0"
+black = "^19.10b0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
