@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "feature_graph"
 version = "0.1.0"
-description = ""
+description = "A simple DAG orchestrator built specifically for machine learning feature generation"
 authors = ["Murray Vanwyk"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 graphviz = "^0.14.1"
 loguru = "^0.5.1"
 google-cloud-bigquery = "^1.25.0"
