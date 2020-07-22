@@ -2,20 +2,19 @@ language: python
 python:
 - '3.7'
 - '3.8'
-install:
+before_install:
 - pip install poetry
+install:
 - poetry install
 script:
 - pytest --doctest-modules -v --cov feature_graph --cov-report term-missing
 after_success:
 - coveralls
 before_deploy:
-  - poetry config pypi-token.pypi $PYPI_TOKEN
-  - poetry build
+- poetry build
 deploy:
   provider: script
   script: poetry publish
   on:
-    tags: true
     condition: "$TRAVIS_PYTHON_VERSION == 3.7"
     branch: master
