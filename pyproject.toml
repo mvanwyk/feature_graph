@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "feature_graph"
+name = "feature-graph"
 version = "0.1.0"
 description = "A simple DAG orchestrator built specifically for machine learning feature generation"
 authors = ["Murray Vanwyk"]

@@ -4,7 +4,7 @@
 
 # Feature Graph
 
-> A simple DAG orchestrator built specifically for feature generation
+> A simple DAG orchestrator built specifically for machine learning feature generation
 
 
 
@@ -67,6 +67,7 @@ let generateProject = project => {
 
 ## Installation
 
+> Required python >=3.7
 - All the `code` required to get started
 - Images of what it should look like
 

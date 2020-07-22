@@ -1,13 +1,20 @@
 language: python
 python:
-  - "3.7"
-  - "3.8"
-# command to install dependencies
+- '3.7'
+- '3.8'
 install:
-  - pip install poetry
-  - poetry install
-# command to run tests
+- pip install poetry
+- poetry install
 script:
-  - pytest --doctest-modules -v --cov feature_graph --cov-report term-missing
+- pytest --doctest-modules -v --cov feature_graph --cov-report term-missing
 after_success:
-  - coveralls
+- coveralls
+deploy:
+  provider: pypi
+  username: "__token__"
+  password:
+    secure: Ev3zD4J9vzHAVtqxnLrYzV23FU2beISb5GZdgCpj1GKLG69BDCVuGQglOKJ/q7CpRHesMgti2eDYVNPnhKmWKcfSY9vulgB3UToWzHocLgnKWNJz6+BSU7EMdtzwikoZ+0KZbmzEP9G0pJgFI2qmElogeun8d4kheVXIuhwk5Q9n/rkbYZ4TZKrq/nZHAAdOc3GRmBLtEl+izBLVGFgbxF+ffxdOXKyrBPo5epxTtVjpg+KjyR4hnNDGYZCTXWpDUyMjNO6Ory8oZrzWDeGoAL/x/bnswSAVoVUWNvIr1nmrkR7OWCMDEtwUqVAYsbOgIh4gg8GdybnzCcQgnc7U4q2hmMghNpf1VqO9tLHuweSpHasQ9Q8Ago30ESj7Ohd0B6BPiOhejsoohnYYeCdluuT5c90p/hhQVkPw8Knsenz9q3vitFBZz1vLTzVXW31PshOkkwZFrxBBi67R/+7eYwqQ0xFzT7+ZfaSA3+R7eikJWv/RmBRdNygUDNJ+DJvchO7jHNeOdVDHlkKzyCTEMgbK4qTyUi7crPpAxmo6wTvyPUGmDMUB/IlVjwlUCFKIR05w1l8UwQJ3BBvLb7bDgSUzWypF6EJuuinzDt/RMH4YbnxKu1b4JcLQK6Qro7Wqx655JU8tFPrVOESQ6uR4BKvwk2qIabu+wz79DJSkkfU=
+  on:
+    tags: true
+    branch: master
+  skip_existing: true
