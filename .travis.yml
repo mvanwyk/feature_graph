@@ -11,7 +11,7 @@ script:
 after_success:
 - coveralls
 before_deploy:
-- poetry build
+- poetry build -f sdist
 deploy:
   provider: script
   script: poetry publish
