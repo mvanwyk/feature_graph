@@ -86,11 +86,10 @@ class FeatureDAG:
 
 
 class FeatureNode:
-    def __init__(self, name: str, input_etags: List[str] = None):
+    def __init__(self, name: str):
 
         self._node_id = str(uuid.uuid4())
         self._name = name
-        self._input_etags = input_etags
         self._parents = set()
         self._children = set()
         self._query_ran = False
@@ -128,7 +127,7 @@ class FeatureNode:
             other = [other]
 
         for node in other:
-            # TODO: Also check that a node is not one if it's parents or parents parents...
+            # TODO: Check that a node is not one if it's parents or parents parents...
             if node.node_id == self._node_id:
                 raise ValueError("Node can not be connected to itself")
             self._children.add(node)
@@ -144,7 +143,7 @@ class FeatureNode:
             other = [other]
 
         for node in other:
-            # TODO: Also check that a node is not one if it's parents or parents parents...
+            # TODO: Check that a node is not one if it's parents or parents parents...
             if node.node_id == self._node_id:
                 raise ValueError("Node can not be connected to itself")
             self._parents.add(node)
