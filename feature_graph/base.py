@@ -84,6 +84,15 @@ class FeatureDAG:
     def _repr_png_(self):
         return self._dot.pipe(format="png")
 
+    def _is_node_parent(self, node: "FeatureNode", check_node_id: str) -> bool:
+
+        for parent_node in node.parents:
+            if parent_node.node_id == check_node_id or self._is_node_parent(
+                node=parent_node, check_node_id=check_node_id
+            ):
+                return True
+        return False
+
 
 class FeatureNode:
     def __init__(self, name: str):
@@ -127,9 +136,16 @@ class FeatureNode:
             other = [other]
 
         for node in other:
-            # TODO: Check that a node is not one if it's parents or parents parents...
+
+            if node in self._children:
+                raise ValueError("Node {} already a child".format(node.name))
+
             if node.node_id == self._node_id:
                 raise ValueError("Node can not be connected to itself")
+
+            if self._dag._is_node_parent(node=self, check_node_id=node.node_id):
+                raise ValueError("Node can not be connected to a parent node")
+
             self._children.add(node)
             node._parents.add(self)
 
@@ -143,13 +159,15 @@ class FeatureNode:
             other = [other]
 
         for node in other:
-            # TODO: Check that a node is not one if it's parents or parents parents...
+
             if node.node_id == self._node_id:
                 raise ValueError("Node can not be connected to itself")
+
+            if self._dag._is_node_parent(node=self, check_node_id=node.node_id):
+                raise ValueError("Node can not be connected to a parent node")
+
             self._parents.add(node)
             node._children.add(self)
-
-        # return self
 
     def __rlshift__(self, other: List["FeatureNode"]):
         raise NotImplementedError("rlshift is not yet implemented")
