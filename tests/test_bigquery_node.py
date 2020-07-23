@@ -85,7 +85,7 @@ def test_node_project_not_specified():
 
     with FeatureDAG():
         with pytest.raises(LookupError):
-            _ = BigQueryNode(name="query a", query="SELECT 1", project="my-project")
+            _ = BigQueryNode(name="query a", query="SELECT 1")
 
 
 def test_node_project_specified_in_dag():
