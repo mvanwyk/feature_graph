@@ -111,15 +111,17 @@ $ bower install
 
 v0.3.0
 
-- Improved safety checks to avoid loops in DAGs
-- Stateful DAG running - Store the state of the last run in the DAG and only re-run those parts that have changes
-- BigQueryNode load query from file
-- Improved documentation
-- Completed README.md
+- [x] Improved safety checks to avoid loops in DAGs
+- [ ] Stateful DAG running - Store the state of the last run in the DAG and only re-run those parts that have changes
+- [ ] BigQueryNode load query from file
+- [ ] Improved documentation
+- [ ] Complete README.md
 
 v0.4.0
 
-- Docstring coverage monitoring w/badge
+- [ ] Docstring coverage monitoring w/badge
+- [ ] Image of nodes that were run in when calling `run_feature_graph()`
+- [ ] Image of node cache state (stale/fresh)
 
 ---
 

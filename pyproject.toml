@@ -9,6 +9,7 @@ python = "^3.7"
 graphviz = "^0.14.1"
 loguru = "^0.5.1"
 google-cloud-bigquery = "^1.25.0"
+SqliteDict = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
