@@ -22,7 +22,7 @@ class FeatureDAG:
     def __init__(self, dag_params: dict = None, state_db: str = ":memory:"):
         self._nodes = set()
         self._dot = None
-        self._diag_params = dag_params
+        self._dag_params = dag_params
         self._state_dict = SqliteDict(
             state_db, autocommit=True, encode=str, decode=str, tablename="state"
         )
