@@ -2,6 +2,8 @@ from feature_graph.base import FeatureNode
 from google.cloud import bigquery
 from loguru import logger
 import os
+from typing import Set
+import hashlib
 
 
 class BigQueryNode(FeatureNode):
@@ -12,6 +14,8 @@ class BigQueryNode(FeatureNode):
         query_file: str = None,
         project: str = None,
         query_params: dict = None,
+        input_tables: Set[str] = None,
+        client: bigquery.Client = None,
     ):
         super().__init__(name=name)
 
@@ -43,6 +47,14 @@ class BigQueryNode(FeatureNode):
                 )
             self._project = self._dag.dag_params["project"]
 
+        self._client = client
+        if not self._client:
+            self._client = bigquery.Client()
+
+        if input_tables and not isinstance(input_tables, list):
+            input_tables = [input_tables]
+        self._input_tables = input_tables
+
     @property
     def project(self):
         return self._project
@@ -51,7 +63,67 @@ class BigQueryNode(FeatureNode):
         logger.info("Running query {}".format(self._name))
         logger.info("Query: {}".format(self._query))
 
-        client = bigquery.Client()
-        _ = client.query(self._query, project=self._project).result()
+        _ = self._client.query(self._query, project=self._project).result()
 
-        super(BigQueryNode, self).run()
+    def _calc_current_cache_tag(self) -> str:
+        """Used to check if the node needs to be run
+
+        The function returns a string which defines the state of the inputs to the
+        node. It is used by the internals of feature_graph to determine if the node
+        needs rerunning because an input has changed.
+
+        It works by creating a string with the states of the inputs and then md5
+        hashing it. The string is composed of,
+
+        1) The query with the query_params substituted in
+        2) If input tables used by the query are provided it will then,
+           a) Get the full table names of the input_tables, including the project
+           b) Get the last modified timestamp of each table
+           c) Sort the list of full table names to add determinism
+           d) Concatenate the list of full table names and timestamps into a single
+              string
+
+        Args:
+            None
+
+        Returns:
+            str: A string which changes when the query, query_params or input tables to
+            the node change
+
+        """
+        str_to_hash = self._query
+
+        if self._input_tables:
+
+            table_data_list = []
+            for tbl in self._input_tables:
+
+                tbl_ref = bigquery.table.TableReference.from_string(
+                    tbl, default_project=self._project
+                )
+                table = self._client.get_table(tbl_ref)
+
+                table_data_list.append(
+                    {
+                        "full_table_name": "{}.{}.{}".format(
+                            table.project, table.dataset_id, table.table_id
+                        ),
+                        "last_modified": str(table.modified),
+                    }
+                )
+
+            # Sort the list of tables to add determinism
+            table_data_list = sorted(
+                table_data_list, key=lambda i: i["full_table_name"]
+            )
+
+            str_to_hash += "|".join(
+                [
+                    "{}_{}".format(table.table_id, table.modified)
+                    for t in table_data_list
+                ]
+            )
+
+        cache_tag = hashlib.md5(str_to_hash.encode("utf-8")).hexdigest()
+
+        return cache_tag

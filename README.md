@@ -113,7 +113,7 @@ v0.3.0
 
 - [x] Improved safety checks to avoid loops in DAGs
 - [x] Stateful DAG running - Store the state of the last run in the DAG and only re-run those parts that have changes
-- [ ] BigQueryNode load query from file
+- [x] BigQueryNode load query from file
 - [ ] Improved documentation
 - [ ] Complete README.md
 

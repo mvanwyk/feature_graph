@@ -72,6 +72,7 @@ class FeatureDAG:
             self._walk_graph_query(parent_nodes=node.parents)
             if node.is_node_stale:
                 node.run()
+                node._update_cache()
 
     def _walk_graph_query(self, parent_nodes: List["FeatureNode"]):
 
@@ -79,6 +80,7 @@ class FeatureDAG:
             self._walk_graph_query(parent_nodes=node.parents)
             if node.is_node_stale:
                 node.run()
+                node._update_cache()
 
     # Printing the graph ------------------------------------------------------
 
@@ -231,9 +233,7 @@ class FeatureNode:
     def run(self):
         """Internal function that sets the cache tag for the node
 
-        This function should be overridden by a subclass but the call must be passed
-        to the super to ensure that the cache state is properly maintained. eg,
-        `super(MySubClass, self).run()`
+        This function should be overridden by a subclass.
 
         Args:
             None
@@ -242,6 +242,9 @@ class FeatureNode:
             None
 
         """
+        pass
+
+    def _update_cache(self):
         self._set_state_cache_tag(cache_tag=self._calc_current_cache_tag())
 
     def __rshift__(self, other: Union["FeatureNode", List["FeatureNode"]]):

@@ -2,6 +2,7 @@ from feature_graph import __version__
 from feature_graph.base import FeatureDAG, FeatureNode
 import pytest
 import os
+from unittest.mock import Mock
 
 
 def test_version():
@@ -168,9 +169,19 @@ def test_state_stored():
 
     assert a.is_node_stale is True
 
+    # Mock the run function to ensure it's called
+    a.run = Mock()
+
     dag.run_feature_graph()
 
+    a.run.assert_called_once()
+
     assert a.is_node_stale is False
+
+    # Re-run DAG and ensure node is no re-run
+    a.run.reset_mock()
+    dag.run_feature_graph()
+    a.run.assert_not_called()
 
 
 def test_clear_state():

@@ -2,6 +2,9 @@ from feature_graph.base import FeatureDAG
 from feature_graph.bigquery_node import BigQueryNode
 import pytest
 import os
+from datetime import datetime
+from google.cloud import bigquery
+from unittest.mock import MagicMock
 
 
 def test_node_with_query_str():
@@ -95,3 +98,95 @@ def test_node_project_specified_in_dag():
         a = BigQueryNode(name="query a", query="SELECT 1")
 
     assert a.project == project
+
+
+def test_calc_cache_without_input_tables():
+
+    with FeatureDAG(dag_params={"project": "my-project"}):
+        a = BigQueryNode(name="query a", query="SELECT 1")
+        b = BigQueryNode(name="query b", query="SELECT 1")
+        c = BigQueryNode(name="query c", query="SELECT 2")
+
+    assert a._calc_current_cache_tag() == b._calc_current_cache_tag()
+    assert a._calc_current_cache_tag() != c._calc_current_cache_tag()
+
+
+def test_calc_cache_with_input_tables():
+
+    client = bigquery.Client()
+
+    mod_timestamp = datetime.now()
+
+    with FeatureDAG(dag_params={"project": "my-project"}):
+
+        client.get_table = MagicMock(
+            project="my-project",
+            dataset_id="my_fake_dataset",
+            table_id="my_fake_table",
+            modified=mod_timestamp,
+        )
+        a = BigQueryNode(
+            name="query a",
+            query="SELECT 1",
+            input_tables="my_fake_dataset.my_fake_table",
+            client=client,
+        )
+        node_a_catch_tag = a._calc_current_cache_tag()
+        b = BigQueryNode(
+            name="query b",
+            query="SELECT 1",
+            input_tables="my_fake_dataset.my_fake_table",
+            client=client,
+        )
+        node_b_catch_tag = b._calc_current_cache_tag()
+
+        client.get_table = MagicMock(
+            project="my-project",
+            dataset_id="my_fake_dataset",
+            table_id="my_other_fake_table",
+            modified=mod_timestamp,
+        )
+        c = BigQueryNode(
+            name="query c",
+            query="SELECT 2",
+            input_tables="my_fake_dataset.my_other_fake_table",
+            client=client,
+        )
+
+    assert node_a_catch_tag == node_b_catch_tag
+    assert node_a_catch_tag != c._calc_current_cache_tag()
+
+    del a
+    del b
+
+    # Also test date changed
+    with FeatureDAG(dag_params={"project": "my-project"}):
+
+        client.get_table = MagicMock(
+            project="my-project",
+            dataset_id="my_fake_dataset",
+            table_id="my_fake_table",
+            modified=mod_timestamp,
+        )
+        a = BigQueryNode(
+            name="query a",
+            query="SELECT 1",
+            input_tables="my_fake_dataset.my_fake_table",
+            client=client,
+        )
+        node_a_catch_tag = a._calc_current_cache_tag()
+
+        client.get_table = MagicMock(
+            project="my-project",
+            dataset_id="my_fake_dataset",
+            table_id="my_fake_table",
+            modified=datetime.now(),
+        )
+        b = BigQueryNode(
+            name="query b",
+            query="SELECT 1",
+            input_tables="my_fake_dataset.my_fake_table",
+            client=client,
+        )
+
+    assert node_a_catch_tag != b._calc_current_cache_tag()
