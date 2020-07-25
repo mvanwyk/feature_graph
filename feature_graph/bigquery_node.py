@@ -56,10 +56,17 @@ class BigQueryNode(FeatureNode):
         self._input_tables = input_tables
 
     @property
-    def project(self):
+    def project(self) -> str:
+        """Returns the project associated with a node
+
+        Returns:
+            str: Returns the project associated with a node
+        """
         return self._project
 
-    def run(self):
+    def run(self) -> None:
+        "Runs the query on BigQuery"
+
         logger.info("Running query {}".format(self._name))
         logger.info("Query: {}".format(self._query))
 
@@ -82,9 +89,6 @@ class BigQueryNode(FeatureNode):
            c) Sort the list of full table names to add determinism
            d) Concatenate the list of full table names and timestamps into a single
               string
-
-        Args:
-            None
 
         Returns:
             str: A string which changes when the query, query_params or input tables to

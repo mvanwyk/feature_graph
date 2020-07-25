@@ -1,109 +1,134 @@
-<a href="https://https://github.com/mvanwyk/feature_graph"><img src="./logo.png" title="Feature Graph" alt="Feature Graph"></a>
+<h1 align="center" style="background-color:#f64e8b;">
+  <a href="https://https://github.com/mvanwyk/feature_graph"><img src="./logo.png" title="Feature Graph" alt="Feature Graph"></a>
+</h1>
 
-<!-- [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) -->
 
 # Feature Graph
 
-> A simple DAG orchestrator built specifically for machine learning feature generation
+## A simple DAG orchestrator built specifically for machine learning feature generation
 
 
 
 [![Build Status](https://travis-ci.org/mvanwyk/feature_graph.svg?branch=master)](https://travis-ci.org/mvanwyk/feature_graph)[![Coverage Status](https://coveralls.io/repos/github/mvanwyk/feature_graph/badge.svg?branch=master)](https://coveralls.io/github/mvanwyk/feature_graph?branch=master)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![Linter: flake8](https://img.shields.io/badge/linter-flake8-yellow)](https://gitlab.com/pycqa/flake8)[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
-***INSERT ANOTHER GRAPHIC HERE***
 
-[![INSERT YOUR GRAPHIC HERE](http://i.imgur.com/dt8AUb6.png)]()
+Feature Graph is an easy to use
 
-- Most people will glance at your `README`, *maybe* star it, and leave
-- Ergo, people should understand instantly what your project is about based on your repo
-
-> Tips
-
-- HAVE WHITE SPACE
-- MAKE IT PRETTY
-- GIFS ARE REALLY COOL
-
-> GIF Tools
-
-- Use <a href="http://recordit.co/" target="_blank">**Recordit**</a> to create quicks screencasts of your desktop and export them as `GIF`s.
+- **Only orchestration** - Simplies code by separating orchestration from the heavy lifting of data processing
+- **No cluster required** - No complex and expensive to run infrastructure
+- **Compose features as a graph (DAG)** - Creating features atomically is inefficient. Creating them in a single step is complex and fragile. Feature Graph simplifes things by allowing you to break feature creation into steps (or nodes) and composable graph. The execution engine will then execute the graph taking in account any dependencies.
+- **Intelligent graph execution** - Re-running a DAG will only re-run those which have changed
 
 **Recordit**
 
 ![Recordit GIF](http://g.recordit.co/iLN6A0vSD8.gif)
 
+## Back story
 
+- Orchestrator and processing infactructure tightly coupled so complex to setup
+- A lot of data pipelines tailored around flexibility for things like image processing but more business data is still in good old fashion databases
+- Tried moving feature creation to pandas and pyspark but after countless hours of tuning and tinkering BigQuery was able to process the data much more quickly, at a lower cost and with a lot less code - the only problem is that SQL isn't the nicest language to build complex data pipelines with
+- There are tools to do this but I wanted something simple and efficent
 
 ---
 
-## Table of Contents (Optional)
-
-> If your `README` has a lot of info, section headers might be nice.
+## Table of Contents
 
 - [Installation](#installation)
 - [Features](#features)
-- [Contributing](#contributing)
-- [FAQ](#faq)
-- [Support](#support)
+- [Documentation](#documentation)
+- Contributing (coming soon)
+- FAQ (comming soon)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 
 
 ---
 
-## Example (Optional)
-
-```javascript
-// code away!
-
-let generateProject = project => {
-  let code = [];
-  for (let js = 0; js < project.length; js++) {
-    code.push(js);
-  }
-};
-```
-
----
-
 ## Installation
 
-> Required python >=3.7
-- All the `code` required to get started
-- Images of what it should look like
-
-### Clone
-
-- Clone this repo to your local machine using `https://github.com/mvanwyk/feature_graph.git`
-
-### Setup
-
-- If you want more syntax highlighting, format your code like this:
-
-> update and install this package first
+- Required python >=3.7
+- To render the DAG diagrams you will also need graphviz installed ([download page](https://www.graphviz.org/download/))
 
 ```shell
-$ brew update
-$ brew install fvcproductions
+$ pip install feature-graph
 ```
-
-> now install npm and bower packages
-
-```shell
-$ npm install
-$ bower install
-```
-
-- For all the possible languages that support syntax highlithing on GitHub (which is basically all of them), refer <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml" target="_blank">here</a>.
 
 ---
 
 ## Features
-## Usage (Optional)
-## Documentation (Optional)
-## Tests (Optional)
 
-- Going into more detail on code and technologies used
-- I utilized this nifty <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">Markdown Cheatsheet</a> for this sample `README`.
+### Basic example
+
+```python
+with FeatureDAG(dag_params={"project": "my_project"}) as dag:
+
+  base_query = BigQueryNode(name="Base Query", query_file="base_query.sql")
+  feat_query_1 = BigQueryNode(name="Feat Query 1", query_file="feat_query_1.sql")
+  final_query = BigQueryNode(name="Final Query", query_file="final_query.sql")
+
+  base_query >> feat_query_1
+  [feat_query_1, base_query] >> final_query
+
+dag.run_feature_graph()
+```
+
+
+### Display a DAG diagram
+
+```python
+
+with FeatureDAG():
+
+  base_query = BigQueryNode(
+    name="Base Query", query_file="base_query.sql", project="my-project"
+  )
+  ...
+
+  dag.print_graph()
+```
+
+![Sample of graph image generated](sample_graph.png)
+
+### Save/load DAG state
+
+```python
+
+with FeatureDAG(state_db="my_state.db") as dag:
+
+  base_query = BigQueryNode(
+    name="Base Query", query_file="base_query.sql", project="my-project"
+  )
+  ...
+
+dag.run_feature_graph()
+```
+
+### Intelligently re-run a graph
+
+```python
+
+with FeatureDAG(state_db="my_state.db") as dag:
+
+  base_query = BigQueryNode(
+    name="Base Query",
+    query_file="base_query.sql",
+    project="my-project",
+    # The tables base_query.sql relies upon
+    input_tables = ["my_dataset.my_table", "my_dataset.my_other_table"]
+  )
+  ...
+
+# The next The node base_query will re-run if the contents of `base_query.sql` change
+# or if one or more of the input tables have been modified since the last time the DAG
+# was run.
+dag.run_feature_graph()
+
+```
+
+## Documentation
+
+> Better documentation coming. Check the docstrings for now
 
 ---
 
@@ -114,7 +139,7 @@ v0.3.0
 - [x] Improved safety checks to avoid loops in DAGs
 - [x] Stateful DAG running - Store the state of the last run in the DAG and only re-run those parts that have changes
 - [x] BigQueryNode load query from file
-- [ ] Improved documentation
+- [ ] Improved docstrings
 - [ ] Complete README.md
 
 v0.4.0
@@ -123,50 +148,14 @@ v0.4.0
 - [ ] Image of nodes that were run in when calling `run_feature_graph()`
 - [ ] Image of node cache state (stale/fresh)
 - [ ] Load/export DAG to yaml file
+- [ ] Create nodes outside of a FeatureDAG context manager
 
 v0.5.0
 
 - [ ] CLI
-
----
-
-## Contributing
-
-> To get started...
-
-### Step 1
-
-- **Option 1**
-    - 🍴 Fork this repo!
-
-- **Option 2**
-    - 👯 Clone this repo to your local machine using `https://github.com/joanaz/HireDot2.git`
-
-### Step 2
-
-- **HACK AWAY!** 🔨🔨🔨
-
-### Step 3
-
-- 🔃 Create a new pull request using <a href="https://github.com/joanaz/HireDot2/compare/" target="_blank">`https://github.com/joanaz/HireDot2/compare/`</a>.
-
-
----
-
-## FAQ
-
-- **How do I do *specifically* so and so?**
-    - No problem! Just do this.
-
----
-
-## Support
-
-Reach out to me at one of the following places!
-
-- Website at <a href="http://fvcproductions.com" target="_blank">`fvcproductions.com`</a>
-- Twitter at <a href="http://twitter.com/fvcproductions" target="_blank">`@fvcproductions`</a>
-- Insert more social links here.
+- [ ] More node types
+- [ ] Template node example
+- [ ] Read the docs
 
 ---
 
