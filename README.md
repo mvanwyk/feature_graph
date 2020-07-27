@@ -12,23 +12,24 @@
 [![Build Status](https://travis-ci.org/mvanwyk/feature_graph.svg?branch=master)](https://travis-ci.org/mvanwyk/feature_graph)[![Coverage Status](https://coveralls.io/repos/github/mvanwyk/feature_graph/badge.svg?branch=master)](https://coveralls.io/github/mvanwyk/feature_graph?branch=master)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![Linter: flake8](https://img.shields.io/badge/linter-flake8-yellow)](https://gitlab.com/pycqa/flake8)[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 
-Feature Graph is an easy to use
+Feature Graph is an easy to use feature generation framework
 
-- **Only orchestration** - Simplies code by separating orchestration from the heavy lifting of data processing
+- **Only orchestration** - Simplifies code by separating orchestration from the heavy lifting of data processing
 - **No cluster required** - No complex and expensive to run infrastructure
-- **Compose features as a graph (DAG)** - Creating features atomically is inefficient. Creating them in a single step is complex and fragile. Feature Graph simplifes things by allowing you to break feature creation into steps (or nodes) and composable graph. The execution engine will then execute the graph taking in account any dependencies.
+- **Compose features as a graph (DAG)** - Creating features atomically is inefficient. Creating them in a single step is complex and fragile. Feature Graph simplifies things by allowing you to break feature creation into steps (or nodes) and composable graph. The execution engine will then execute the graph taking in account any dependencies.
 - **Intelligent graph execution** - Re-running a DAG will only re-run those which have changed
 
-**Recordit**
+<!-- **Recordit**
 
-![Recordit GIF](http://g.recordit.co/iLN6A0vSD8.gif)
+![Recordit GIF](http://g.recordit.co/iLN6A0vSD8.gif) -->
 
-## Back story
+<!-- ## Back story
 
-- Orchestrator and processing infactructure tightly coupled so complex to setup
+- Orchestrator and processing infrastructure tightly coupled so complex to setup
 - A lot of data pipelines tailored around flexibility for things like image processing but more business data is still in good old fashion databases
 - Tried moving feature creation to pandas and pyspark but after countless hours of tuning and tinkering BigQuery was able to process the data much more quickly, at a lower cost and with a lot less code - the only problem is that SQL isn't the nicest language to build complex data pipelines with
-- There are tools to do this but I wanted something simple and efficent
+- There are tools to do this but I wanted something simple and efficient
+- Don't need heavy weight orchestrator when using managed services -->
 
 ---
 
@@ -38,7 +39,7 @@ Feature Graph is an easy to use
 - [Features](#features)
 - [Documentation](#documentation)
 - Contributing (coming soon)
-- FAQ (comming soon)
+- FAQ (coming soon)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 

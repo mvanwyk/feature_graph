@@ -85,6 +85,41 @@ def test_bracket_middle_dag():
     assert b in d.parents
     assert c in d.parents
 
+    del a, b, c, d
+
+    with FeatureDAG():
+        a = FeatureNode(name="query a")
+        b = FeatureNode(name="query b")
+        c = FeatureNode(name="query c")
+        d = FeatureNode(name="query d")
+
+        a >> b
+        b >> c
+        [c, a] >> d
+
+    assert b in a.children
+    assert c in b.children
+    assert a in b.parents
+    assert b in c.parents
+    assert d in a.children
+    assert d in c.children
+    assert a in d.parents
+    assert c in d.parents
+
+
+def test_assign_child_node_fail():
+
+    with FeatureDAG():
+        a = FeatureNode(name="query a")
+        b = FeatureNode(name="query b")
+        c = FeatureNode(name="query c")
+
+        a >> b
+        with pytest.raises(ValueError):
+            # Only occurs when rrshift is used, which only happens when a list of nodes
+            # assigns another node as a parent
+            [c, b] >> a
+
 
 def test_assign_node_to_self_fail():
 
@@ -215,8 +250,7 @@ def test_state_stored_with_file():
 
     assert a.is_node_stale is False
 
-    del a
-    del dag
+    del a, dag
 
     with FeatureDAG(state_db=state_db):
         a = FeatureNode(name="query a")

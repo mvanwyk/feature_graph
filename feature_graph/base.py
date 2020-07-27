@@ -165,6 +165,8 @@ class FeatureDAG:
             self._walk_graph_print(parent_node=node, child_nodes=node.children)
 
     def _repr_png_(self):
+        if not self._dot:
+            self.print_graph()
         return self._dot.pipe(format="png")
 
     def _is_node_parent(self, node: "FeatureNode", check_node_id: str) -> bool:
@@ -182,6 +184,25 @@ class FeatureDAG:
         for parent_node in node.parents:
             if parent_node.node_id == check_node_id or self._is_node_parent(
                 node=parent_node, check_node_id=check_node_id
+            ):
+                return True
+        return False
+
+    def _is_node_child(self, node: "FeatureNode", check_node_id: str) -> bool:
+        """Recursive internal function to check if a node_id is a node's child or
+        other descendant
+
+        Args:
+            node (FeatureNode): The possible parent node
+            check_node_id (str): The node ID to check if it is a child or descendant
+
+        Returns:
+            bool: True if the check node ID is a child or descendant. False otherwise.
+        """
+
+        for child_node in node.children:
+            if child_node.node_id == check_node_id or self._is_node_child(
+                node=child_node, check_node_id=check_node_id
             ):
                 return True
         return False
@@ -377,9 +398,11 @@ class FeatureNode:
             if node.node_id == self._node_id:
                 raise ValueError("Node can not be connected to itself")
 
-            if self._dag._is_node_parent(node=self, check_node_id=node.node_id):
+            if self._dag._is_node_child(node=self, check_node_id=node.node_id):
                 raise ValueError(
-                    "Node can not be connected to a parent node: {}".format(node.name)
+                    "Node {}, can not be connected to child node {}".format(
+                        self.name, node.name
+                    )
                 )
 
             self._parents.add(node)

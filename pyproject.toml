@@ -2,6 +2,9 @@
 name = "feature-graph"
 version = "0.2.0"
 description = "A simple DAG orchestrator built specifically for machine learning feature generation"
+license="MIT"
+readme="README.md"
+repository="https://github.com/mvanwyk/feature_graph"
 authors = ["Murray Vanwyk"]
 
 [tool.poetry.dependencies]
@@ -19,7 +22,11 @@ pytest-cov = "^2.10.0"
 pre-commit = "^2.6.0"
 black = "^19.10b0"
 coveralls = "^2.1.1"
+docstr-coverage = "^1.2.0"
 
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/mvanwyk/feature_graph/issues"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
