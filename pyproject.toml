@@ -26,7 +26,8 @@ docstr-coverage = "^1.2.0"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/mvanwyk/feature_graph/issues"
+
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry==1.0.9"]
 build-backend = "poetry.masonry.api"
 
