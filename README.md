@@ -140,8 +140,8 @@ v0.3.0
 - [x] Improved safety checks to avoid loops in DAGs
 - [x] Stateful DAG running - Store the state of the last run in the DAG and only re-run those parts that have changes
 - [x] BigQueryNode load query from file
-- [ ] Improved docstrings
-- [ ] Complete README.md
+- [x] Improved docstrings
+- [x] Complete README.md
 
 v0.4.0
 
@@ -157,6 +157,10 @@ v0.5.0
 - [ ] More node types
 - [ ] Template node example
 - [ ] Read the docs
+
+v0.6.0
+
+- [ ] Streaming feature generation support
 
 ---
 
