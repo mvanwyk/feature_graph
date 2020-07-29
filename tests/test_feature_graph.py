@@ -1,12 +1,7 @@
-from feature_graph import __version__
 from feature_graph.base import FeatureDAG, FeatureNode
 import pytest
 import os
 from unittest.mock import Mock
-
-
-def test_version():
-    assert __version__ == "0.3.2"
 
 
 def test_simple_dag():
