@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "feature-graph"
-version = "0.3.0"
+version = "0.3.2"
 description = "A simple DAG orchestrator built specifically for machine learning feature generation"
 license="MIT"
 readme="README.md"
@@ -28,6 +28,6 @@ docstr-coverage = "^1.2.0"
 "Bug Tracker" = "https://github.com/mvanwyk/feature_graph/issues"
 
 [build-system]
-requires = ["poetry==1.0.9"]
+requires = ["poetry^1.0.9"]
 build-backend = "poetry.masonry.api"
 
