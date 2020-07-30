@@ -1,16 +1,12 @@
 <h1 align="center" style="background-color:#f64e8b;">
-  <a href="https://https://github.com/mvanwyk/feature_graph"><img src="./logo.png" title="Feature Graph" alt="Feature Graph"></a>
+  <a href="https://storage.googleapis.com/feature_graph_static_content/logo.png"><img src="./logo.png" title="Feature Graph" alt="Feature Graph"></a>
 </h1>
-
 
 # Feature Graph
 
 ## A simple DAG orchestrator built specifically for machine learning feature generation
 
-
-
 [![Build Status](https://travis-ci.org/mvanwyk/feature_graph.svg?branch=master)](https://travis-ci.org/mvanwyk/feature_graph)[![Coverage Status](https://coveralls.io/repos/github/mvanwyk/feature_graph/badge.svg?branch=master)](https://coveralls.io/github/mvanwyk/feature_graph?branch=master)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![Linter: flake8](https://img.shields.io/badge/linter-flake8-yellow)](https://gitlab.com/pycqa/flake8)[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-
 
 Feature Graph is an easy to use feature generation framework
 
@@ -43,7 +39,6 @@ Feature Graph is an easy to use feature generation framework
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 
-
 ---
 
 ## Installation
@@ -74,7 +69,6 @@ with FeatureDAG(dag_params={"project": "my_project"}) as dag:
 dag.run_feature_graph()
 ```
 
-
 ### Display a DAG diagram
 
 ```python
@@ -89,7 +83,7 @@ with FeatureDAG():
   dag.print_graph()
 ```
 
-![Sample of graph image generated](sample_graph.png)
+![Sample of graph image generated](https://storage.googleapis.com/feature_graph_static_content/sample_graph.png)
 
 ### Save/load DAG state
 
@@ -148,7 +142,6 @@ v0.4.0
 - [ ] Docstring coverage monitoring w/badge
 - [ ] Image of nodes that were run in when calling `run_feature_graph()`
 - [ ] Image of node cache state (stale/fresh)
-- [ ] Load/export DAG to yaml file
 - [ ] Create nodes outside of a FeatureDAG context manager
 
 v0.5.0
@@ -169,10 +162,11 @@ v0.6.0
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
-- Copyright 2019 © <a href="https://github.com/mvanwyk/" target="_blank">Murray Vanwyk</a>.
+- Copyright 2020 © [Murray Vanwyk](https://github.com/mvanwyk/)
 
 ---
 
 ## Acknowledgements
-- Readme template - https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46
-- Implementation style - https://diagrams.mingrammer.com/
+
+- Readme template - [https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+- Implementation style - [https://diagrams.mingrammer.com/](https://diagrams.mingrammer.com/)
