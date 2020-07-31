@@ -67,7 +67,6 @@ class BigQueryNode(FeatureNode):
     def run(self) -> None:
         "Runs the query on BigQuery"
 
-        logger.info("Running query {}".format(self._name))
         logger.debug("Query: {}".format(self._query))
 
         _ = self._client.query(self._query, project=self._project).result()

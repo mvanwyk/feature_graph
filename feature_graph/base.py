@@ -3,6 +3,8 @@ from typing import List, Union, Set
 from graphviz import Digraph
 from sqlitedict import SqliteDict
 from hashlib import md5
+from IPython.display import display, Image
+from loguru import logger
 
 __dag = contextvars.ContextVar("dag")
 
@@ -41,7 +43,10 @@ class FeatureDAG:
         """
 
         self._nodes = set()
+        self._node_connections = set()
+        self._node_dot_attr = {}
         self._dot = None
+        self._ipython_display_handle = None
         self._dag_params = dag_params
         self._state_dict = SqliteDict(
             state_db, autocommit=True, encode=str, decode=str, tablename="state"
@@ -98,76 +103,98 @@ class FeatureDAG:
             if node_id not in dag_node_ids:
                 del self._state_dict[node_id]
 
-    def run_feature_graph(self) -> None:
+    def run_feature_graph(self, display_dag: bool = False) -> None:
         """Runs the nodes in the DAG
 
         The function will traverse a DAG starting with leaf nodes and working its way
         to the root nodes. Once it finds a root node it will work backwards looking for
         stale nodes in need of running.
 
+        Args:
+            display_dag (bool, optional): Whether to display the running graph in
+            ipython. Defaults to False.
         """
 
         nodes_no_children = [node for node in self._nodes if len(node.children) == 0]
 
         for node in nodes_no_children:
-            self._walk_graph_query(parent_nodes=node.parents)
+            self._walk_graph_query(parent_nodes=node.parents, display_dag=display_dag)
             if node.is_node_stale:
-                node.run()
-                node._update_cache()
+                self._run_node(node, display_dag=display_dag)
 
-    def _walk_graph_query(self, parent_nodes: List["FeatureNode"]) -> None:
+    def _walk_graph_query(
+        self, parent_nodes: List["FeatureNode"], display_dag: bool = False
+    ) -> None:
         """Internal function that recursively walks the DAG running any stale nodes
 
         Args:
             parent_nodes (List[FeatureNode]): A list of a node's parent nodes to
             recursively walk
+            display_dag (bool, optional): Whether to display the running graph in
+            ipython. Defaults to False.
         """
 
         for node in parent_nodes:
             self._walk_graph_query(parent_nodes=node.parents)
             if node.is_node_stale:
-                node.run()
-                node._update_cache()
+                self._run_node(node, display_dag=display_dag)
 
-    # Printing the graph ------------------------------------------------------
-
-    def print_graph(self) -> None:
-        """Draws the DAG as a graphviz dot diagram
-
-        The function starts by adding all the nodes to the diagram. It then traverses
-        the DAG starting with any root nodes and working its way down the graph.
-
-        """
-
-        self._dot = Digraph()
-
-        nodes_no_parents = []
-        for node in self._nodes:
-            self._dot.node(node.node_id, node.name)
-            if len(node.parents) == 0:
-                nodes_no_parents.append(node)
-        for node in nodes_no_parents:
-            self._walk_graph_print(parent_node=node, child_nodes=node.children)
-
-    def _walk_graph_print(
-        self, parent_node: "FeatureNode", child_nodes: List["FeatureNode"]
-    ) -> None:
-        """Internal function that recursively walks the DAG adding connections between
-        nodes
+    def _run_node(self, node: "FeatureNode", display_dag: bool = False) -> None:
+        """Runs
 
         Args:
-            child_nodes (List[FeatureNode]): A list of a node's children nodes to
-            recursively walk
+            node (FeatureNode): The node to be run
+            display_dag (bool, optional): Whether to display the node in a ipython
+            notebook. Defaults to False.
         """
 
-        for node in child_nodes:
-            self._dot.edge(parent_node.node_id, node.node_id)
-            self._walk_graph_print(parent_node=node, child_nodes=node.children)
+        if display_dag:
+            self._node_dot_attr = {node.node_id: {"style": "filled", "color": "green"}}
+            self._ipython_display_dot()
+
+        logger.info("Running query {}".format(node.name))
+
+        current_cache_tag = node._calc_current_cache_tag()
+
+        node.run()
+
+        node._update_cache(current_cache_tag)
+
+    def _ipython_display_dot(self) -> None:
+        "Display the dot diagram with a ipython display handle"
+
+        img = Image(data=self._repr_png_(), format="png", embed=True)
+
+        if self._ipython_display_handle:
+            self._ipython_display_handle.update(img)
+        else:
+            self._ipython_display_handle = display(img, display_id="fg_dot_diagram")
 
     def _repr_png_(self):
-        if not self._dot:
-            self.print_graph()
+
+        self._dot = Digraph()
+        for node in self._nodes:
+            self._dot.node(
+                name=node.node_id,
+                label=node.name,
+                _attributes=self._node_dot_attr.get(node.node_id, None),
+            )
+
+        for connection in self._node_connections:
+            self._dot.edge(connection[0], connection[1])
+
         return self._dot.pipe(format="png")
+
+    def _connect_node(
+        self, parent_node: "FeatureNode", child_node: "FeatureNode"
+    ) -> None:
+        """Connects two nodes in the diagram
+
+        Args:
+            parent_node (FeatureNode): The starting node for the connection arrow
+            child_node (FeatureNode): The end node for the connection arrow
+        """
+        self._node_connections.add((parent_node.node_id, child_node.node_id))
 
     def _is_node_parent(self, node: "FeatureNode", check_node_id: str) -> bool:
         """Recursive internal function to check if a node_id is a node's parent or
@@ -280,6 +307,7 @@ class FeatureNode:
             tag, False otherwise.
 
         """
+
         return not self._calc_current_cache_tag() == self._get_state_cache_tag
 
     def _calc_current_cache_tag(self) -> str:
@@ -331,10 +359,14 @@ class FeatureNode:
         """
         pass
 
-    def _update_cache(self) -> None:
-        "Updates the cache tag in the state database"
+    def _update_cache(self, new_tag: str) -> None:
+        """Updates the cache tag in the state database
 
-        self._set_state_cache_tag(cache_tag=self._calc_current_cache_tag())
+        Args:
+            new_tag (str): The new cache tag to store in the cache
+        """
+
+        self._set_state_cache_tag(cache_tag=new_tag)
 
     def __rshift__(
         self, other: Union["FeatureNode", List["FeatureNode"]]
@@ -372,6 +404,8 @@ class FeatureNode:
             self._children.add(node)
             node._parents.add(self)
 
+            self._dag._connect_node(parent_node=self, child_node=node)
+
         return other
 
     def __lshift__(self, other: Union["FeatureNode", List["FeatureNode"]]) -> None:
@@ -407,6 +441,8 @@ class FeatureNode:
 
             self._parents.add(node)
             node._children.add(self)
+
+            self._dag._connect_node(parent_node=node, child_node=self)
 
     def __rlshift__(self, other: List["FeatureNode"]):
         "Not implemented"
