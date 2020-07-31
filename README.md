@@ -139,7 +139,7 @@ v0.3.0
 
 v0.4.0
 
-- [ ] Docstring coverage monitoring w/badge
+- [x] Docstring coverage monitoring w/badge
 - [ ] Image of nodes that were run in when calling `run_feature_graph()`
 - [ ] Image of node cache state (stale/fresh)
 - [ ] Create nodes outside of a FeatureDAG context manager
