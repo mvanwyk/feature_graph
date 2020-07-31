@@ -13,16 +13,17 @@ graphviz = "^0.14.1"
 loguru = "^0.5.1"
 google-cloud-bigquery = "^1.25.0"
 SqliteDict = "^1.6.0"
+ipython = "^7.16.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
-jupyterlab = "^2.2.0"
 flake8 = "^3.8.3"
 pytest-cov = "^2.10.0"
 pre-commit = "^2.6.0"
 black = "^19.10b0"
 coveralls = "^2.1.1"
 docstr-coverage = "^1.2.0"
+jupyterlab = "^2.2.2"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/mvanwyk/feature_graph/issues"
