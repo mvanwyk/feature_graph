@@ -103,39 +103,48 @@ class FeatureDAG:
             if node_id not in dag_node_ids:
                 del self._state_dict[node_id]
 
-    def run_feature_graph(self) -> None:
+    def run_feature_graph(self, display_dag: bool = False) -> None:
         """Runs the nodes in the DAG
 
         The function will traverse a DAG starting with leaf nodes and working its way
         to the root nodes. Once it finds a root node it will work backwards looking for
         stale nodes in need of running.
 
+        Args:
+            display_dag (bool, optional): Whether to display the running graph in
+            ipython. Defaults to False.
         """
 
         nodes_no_children = [node for node in self._nodes if len(node.children) == 0]
 
         for node in nodes_no_children:
-            self._walk_graph_query(parent_nodes=node.parents)
+            self._walk_graph_query(parent_nodes=node.parents, display_dag=display_dag)
             if node.is_node_stale:
-                self._run_node(node)
+                self._run_node(node, display_dag=display_dag)
 
-    def _walk_graph_query(self, parent_nodes: List["FeatureNode"]) -> None:
+    def _walk_graph_query(
+        self, parent_nodes: List["FeatureNode"], display_dag: bool = False
+    ) -> None:
         """Internal function that recursively walks the DAG running any stale nodes
 
         Args:
             parent_nodes (List[FeatureNode]): A list of a node's parent nodes to
             recursively walk
+            display_dag (bool, optional): Whether to display the running graph in
+            ipython. Defaults to False.
         """
 
         for node in parent_nodes:
             self._walk_graph_query(parent_nodes=node.parents)
             if node.is_node_stale:
-                self._run_node(node)
+                self._run_node(node, display_dag=display_dag)
 
-    def _run_node(self, node: "FeatureNode") -> None:
+    def _run_node(self, node: "FeatureNode", display_dag: bool = False) -> None:
 
-        self._node_dot_attr = {node.node_id: {"style": "filled", "color": "green"}}
-        self._ipython_display_dot()
+        if display_dag:
+            self._node_dot_attr = {node.node_id: {"style": "filled", "color": "green"}}
+            self._ipython_display_dot()
+
         logger.info("Running query {}".format(node.name))
 
         current_cache_tag = node._calc_current_cache_tag()
