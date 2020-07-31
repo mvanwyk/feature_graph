@@ -140,6 +140,13 @@ class FeatureDAG:
                 self._run_node(node, display_dag=display_dag)
 
     def _run_node(self, node: "FeatureNode", display_dag: bool = False) -> None:
+        """Runs
+
+        Args:
+            node (FeatureNode): The node to be run
+            display_dag (bool, optional): Whether to display the node in a ipython
+            notebook. Defaults to False.
+        """
 
         if display_dag:
             self._node_dot_attr = {node.node_id: {"style": "filled", "color": "green"}}
@@ -154,6 +161,7 @@ class FeatureDAG:
         node._update_cache(current_cache_tag)
 
     def _ipython_display_dot(self) -> None:
+        "Display the dot diagram with a ipython display handle"
 
         img = Image(data=self._repr_png_(), format="png", embed=True)
 
